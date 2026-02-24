@@ -157,3 +157,44 @@ for (let i = 0; i < navigationLinks.length; i++) {
 
   });
 }
+
+
+(() => {
+  const blogPage = document.querySelector('article.blog');
+  if (!blogPage) return;
+
+  const modalContainer = blogPage.querySelector('[data-blog-modal-container]');
+  const modalOverlay = blogPage.querySelector('[data-blog-modal-overlay]');
+  const modalCloseBtn = blogPage.querySelector('[data-blog-modal-close-btn]');
+  const modalTitle = blogPage.querySelector('[data-blog-modal-title]');
+  const modalText = blogPage.querySelector('[data-blog-modal-text]');
+  const openLinks = blogPage.querySelectorAll('[data-blog-open]');
+
+  const openModal = (title, text) => {
+    modalTitle.textContent = title || '';
+    modalText.textContent = text || '';
+    modalContainer.classList.add('active');
+  };
+
+  const closeModal = () => modalContainer.classList.remove('active');
+
+  openLinks.forEach((link) => {
+    link.addEventListener('click', (e) => {
+      e.preventDefault();
+
+      const item = link.closest('[data-blog-item]');
+      const title = item?.querySelector('.blog-item-title')?.textContent.trim();
+      const full = item?.querySelector('.blog-full-text')?.textContent.trim()
+        || item?.querySelector('.blog-text')?.textContent.trim();
+
+      openModal(title, full);
+    });
+  });
+
+  modalCloseBtn?.addEventListener('click', closeModal);
+  modalOverlay?.addEventListener('click', closeModal);
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') closeModal();
+  });
+})();
