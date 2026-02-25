@@ -244,6 +244,12 @@ article.active {
   padding-bottom: 7px;
 }
 
+.projects .article-title.project-title-light {
+  font-size: 28px;      /* adjust */
+  line-height: 1.5;
+  font-weight: 400;     /* optional */
+}
+
 .article-title::after {
   content: "";
   position: absolute;
@@ -293,7 +299,10 @@ article.active {
 }
 
 
-
+b,
+strong {
+  font-weight: 600;
+}
 
 
 /*-----------------------------------*\
@@ -308,7 +317,13 @@ main {
 
 
 
-
+.funding-logo {
+  height: 64px;      /* change as needed */
+  width: auto;
+  max-width: 100%;
+  object-fit: contain;
+  margin-inline: auto;
+}
 
 /*-----------------------------------*\
   #SIDEBAR
@@ -662,6 +677,82 @@ main {
   .blog-filter-item button.active { color: var(--orange-yellow-crayola); }
 }
 
+/*-----------------------------------*\
+  #SLIDESHOW
+\*-----------------------------------*/
+.about-slideshow {
+  position: relative;
+  max-width: 500px;
+  margin: 20px auto;
+  overflow: hidden;
+  border-radius: 15px;
+}
+
+.about-image {
+  margin: 0;
+  padding: 0;
+}
+
+.about-image img {
+  width: 100%;
+  height: auto;
+  display: block;
+  border-radius: 15px;
+  transition: opacity 0.5s ease;
+}
+
+.slideshow-nav {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  right: 0;
+  transform: translateY(-50%);
+  display: flex;
+  justify-content: space-between;
+  padding: 0 12px;
+  pointer-events: none;
+}
+
+.slide-btn {
+  background: rgba(0, 0, 0, 0.5);
+  color: var(--white-2);
+  border: none;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  pointer-events: all;
+  transition: background 0.3s ease;
+  font-size: 20px;
+}
+
+.slide-btn:hover {
+  background: rgba(0, 0, 0, 0.8);
+}
+
+.slide-dots {
+  position: absolute;
+  bottom: 12px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 8px;
+}
+
+.slide-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.5);
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+.slide-dot.active {
+  background: var(--orange-yellow-crayola);
+}
 
 /*-----------------------------------*\
   #NAVBAR
@@ -963,7 +1054,7 @@ main {
 
 .clients-item img {
   width: 100%;
-  filter: grayscale(1);
+  /* filter: grayscale(1); */
   transition: var(--transition-1);
 }
 
@@ -1328,8 +1419,88 @@ main {
 }
 
 
+/*-----------------------------------*\
+  #PROJECTS CATEGORY
+\*-----------------------------------*/
 
+.projects-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 24px;
+  align-items: stretch;
+}
 
+.project-card {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.project-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.22);
+}
+
+.project-card-image {
+  aspect-ratio: 2 / 1;          /* same visual size for all cards */
+  background: var(--eerie-black-1);/* visible empty margins area */
+  padding: 10px;                   /* optional */
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+}
+
+.project-card-image img {
+  width: 101%;
+  height: 101%;
+  object-fit: contain;             /* no cropping */
+  display: block;
+}
+
+.project-card-content {
+  padding: 14px 16px 18px;
+}
+
+.project-card-title {
+  margin-bottom: 8px;
+  color: var(--white-2);
+}
+
+.project-card-text {
+  color: var(--light-gray);
+  line-height: 1.5;
+}
+
+@media (max-width: 768px) {
+  .projects-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/*-----------------------------------*\
+  #PROJECT INFO PAGES
+\*-----------------------------------*/
+.styled-results-list {
+  margin: 0;
+  padding: 0;
+}
+
+.styled-results-list li {
+  position: relative;
+  padding-left: 1.2rem;
+  margin-bottom: 10px;
+  color: var(--light-gray);
+  line-height: 1.7;
+  list-style: none; /* override global reset safely */
+}
+
+.styled-results-list li::before {
+  content: "•";
+  position: absolute;
+  left: 0;
+  color: var(--orange-yellow-crayola);
+  font-weight: var(--fw-600);
+}
 
 /*-----------------------------------*\
   #CONTACT

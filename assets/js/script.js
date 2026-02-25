@@ -55,43 +55,47 @@ overlay.addEventListener("click", testimonialsModalFunc);
 
 
 
-// custom select variables
+// custom select variables (portfolio - optional)
 const select = document.querySelector("[data-select]");
 const selectItems = document.querySelectorAll("[data-select-item]");
-const selectValue = document.querySelector("[data-selecct-value]");
+const selectValue = document.querySelector("[data-select-value]");
 const filterBtn = document.querySelectorAll("[data-filter-btn]");
-
-select.addEventListener("click", function () { elementToggleFunc(this); });
-
-// add event in all select items
-for (let i = 0; i < selectItems.length; i++) {
-  selectItems[i].addEventListener("click", function () {
-
-    let selectedValue = this.innerText.toLowerCase();
-    selectValue.innerText = this.innerText;
-    elementToggleFunc(select);
-    filterFunc(selectedValue);
-
-  });
-}
-
-// filter variables
 const filterItems = document.querySelectorAll("[data-filter-item]");
 
-const filterFunc = function (selectedValue) {
+if (select && selectValue && selectItems.length && filterBtn.length && filterItems.length) {
+  select.addEventListener("click", function () { elementToggleFunc(this); });
 
-  for (let i = 0; i < filterItems.length; i++) {
-
-    if (selectedValue === "all") {
-      filterItems[i].classList.add("active");
-    } else if (selectedValue === filterItems[i].dataset.category) {
-      filterItems[i].classList.add("active");
-    } else {
-      filterItems[i].classList.remove("active");
+  const filterFunc = function (selectedValue) {
+    for (let i = 0; i < filterItems.length; i++) {
+      if (selectedValue === "all" || selectedValue === filterItems[i].dataset.category) {
+        filterItems[i].classList.add("active");
+      } else {
+        filterItems[i].classList.remove("active");
+      }
     }
+  };
 
+  for (let i = 0; i < selectItems.length; i++) {
+    selectItems[i].addEventListener("click", function () {
+      let selectedValue = this.innerText.toLowerCase();
+      selectValue.innerText = this.innerText;
+      elementToggleFunc(select);
+      filterFunc(selectedValue);
+    });
   }
 
+  let lastClickedBtn = filterBtn[0];
+  for (let i = 0; i < filterBtn.length; i++) {
+    filterBtn[i].addEventListener("click", function () {
+      let selectedValue = this.innerText.toLowerCase();
+      selectValue.innerText = this.innerText;
+      filterFunc(selectedValue);
+
+      lastClickedBtn.classList.remove("active");
+      this.classList.add("active");
+      lastClickedBtn = this;
+    });
+  }
 }
 
 // add event in all filter button items for large screen
@@ -141,27 +145,31 @@ const navigationLinks = document.querySelectorAll("[data-nav-link]");
 const pages = document.querySelectorAll("[data-page]");
 
 // add event to all nav link
-for (let i = 0; i < navigationLinks.length; i++) {
-  navigationLinks[i].addEventListener("click", function () {
+navigationLinks.forEach((link) => {
+  link.addEventListener("click", function () {
+    const target = (this.dataset.target || this.textContent).toLowerCase().trim();
 
-    for (let i = 0; i < pages.length; i++) {
-      if (this.innerHTML.toLowerCase() === pages[i].dataset.page) {
-        pages[i].classList.add("active");
-        navigationLinks[i].classList.add("active");
-        window.scrollTo(0, 0);
-      } else {
-        pages[i].classList.remove("active");
-        navigationLinks[i].classList.remove("active");
-      }
-    }
+    pages.forEach((page) => {
+      page.classList.toggle("active", page.dataset.page === target);
+    });
 
+    navigationLinks.forEach((nav) => nav.classList.remove("active"));
+    this.classList.add("active");
+
+    window.scrollTo(0, 0);
   });
-}
+});
 
 
 (() => {
-  const blogPage = document.querySelector('article.blog');
+  const blogPage = document.querySelector('article.projects');
   if (!blogPage) return;
+
+  const blogItems = blogPage.querySelectorAll('[data-blog-item]');
+  const filterBtns = blogPage.querySelectorAll('[data-blog-filter-btn]');
+  const selectBtn = blogPage.querySelector('[data-blog-select]');
+  const selectValue = blogPage.querySelector('[data-blog-select-value]');
+  const selectItems = blogPage.querySelectorAll('[data-blog-select-item]');
 
   const modalContainer = blogPage.querySelector('[data-blog-modal-container]');
   const modalOverlay = blogPage.querySelector('[data-blog-modal-overlay]');
@@ -170,9 +178,47 @@ for (let i = 0; i < navigationLinks.length; i++) {
   const modalText = blogPage.querySelector('[data-blog-modal-text]');
   const openLinks = blogPage.querySelectorAll('[data-blog-open]');
 
+  // Filter function
+  const applyBlogFilter = (filter) => {
+    blogItems.forEach((item) => {
+      const match = filter === 'all' || item.dataset.blogCategory === filter;
+      item.classList.toggle('active', match);
+    });
+
+    filterBtns.forEach((btn) => {
+      btn.classList.toggle('active', btn.dataset.blogFilter === filter);
+    });
+
+    if (selectValue) {
+      selectValue.textContent = filter === 'all' ? 'All' :
+        filter === 'research' ? 'Energy Material Studies' :
+        filter === 'materials' ? 'Molten Salt Electrochemistry' :
+        filter === 'electrochemistry' ? 'Energy Harvesting' : filter;
+    }
+  };
+
+  // Desktop filter buttons
+  filterBtns.forEach((btn) => {
+    btn.addEventListener('click', () => applyBlogFilter(btn.dataset.blogFilter));
+  });
+
+  // Mobile select dropdown
+  if (selectBtn) {
+    selectBtn.addEventListener('click', () => selectBtn.classList.toggle('active'));
+  }
+
+  selectItems.forEach((itemBtn) => {
+    itemBtn.addEventListener('click', () => {
+      const filter = itemBtn.dataset.blogFilter;
+      applyBlogFilter(filter);
+      selectBtn?.classList.remove('active');
+    });
+  });
+
+  // Modal logic
   const openModal = (title, text) => {
     modalTitle.textContent = title || '';
-    modalText.textContent = text || '';
+    modalText.innerHTML = text || '';
     modalContainer.classList.add('active');
   };
 
@@ -181,20 +227,75 @@ for (let i = 0; i < navigationLinks.length; i++) {
   openLinks.forEach((link) => {
     link.addEventListener('click', (e) => {
       e.preventDefault();
-
       const item = link.closest('[data-blog-item]');
       const title = item?.querySelector('.blog-item-title')?.textContent.trim();
-      const full = item?.querySelector('.blog-full-text')?.textContent.trim()
-        || item?.querySelector('.blog-text')?.textContent.trim();
-
+      const full = item?.querySelector('.blog-full-text')?.innerHTML.trim()
+        || item?.querySelector('.blog-text')?.innerHTML.trim();
       openModal(title, full);
     });
   });
 
   modalCloseBtn?.addEventListener('click', closeModal);
   modalOverlay?.addEventListener('click', closeModal);
-
   document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape') closeModal();
   });
+
+  // Initialize with 'all'
+  applyBlogFilter('all');
+})();
+
+
+// Slideshow functionality
+(() => {
+  const galleryPage = document.querySelector('article.gallery');
+  if (!galleryPage) return;
+
+  const slides = [
+    { src: './assets/images/gallery-1.jpg', alt: 'About image 1' },
+    { src: './assets/images/blog-4.jpg', alt: 'About image 2' },
+    { src: './assets/images/blog-5.jpg', alt: 'About image 3' },
+    // Add more slides as needed
+  ];
+
+  const slideImg = galleryPage.querySelector('[data-slide-img]');
+  const prevBtn = galleryPage.querySelector('[data-slide-prev]');
+  const nextBtn = galleryPage.querySelector('[data-slide-next]');
+  const dotsContainer = galleryPage.querySelector('[data-slide-dots]');
+
+  if (!slideImg || !dotsContainer) return;
+
+  let currentSlide = 0;
+
+  // Create dots
+  slides.forEach((_, i) => {
+    const dot = document.createElement('button');
+    dot.className = `slide-dot ${i === 0 ? 'active' : ''}`;
+    dot.setAttribute('aria-label', `Slide ${i + 1}`);
+    dot.addEventListener('click', () => goToSlide(i));
+    dotsContainer.appendChild(dot);
+  });
+
+  const dots = dotsContainer.querySelectorAll('.slide-dot');
+
+  function updateSlide() {
+    slideImg.src = slides[currentSlide].src;
+    slideImg.alt = slides[currentSlide].alt;
+    dots.forEach((dot, i) => {
+      dot.classList.toggle('active', i === currentSlide);
+    });
+  }
+
+  function goToSlide(n) {
+    currentSlide = (n + slides.length) % slides.length;
+    updateSlide();
+  }
+
+  function nextSlide() { goToSlide(currentSlide + 1); }
+  function prevSlide() { goToSlide(currentSlide - 1); }
+
+  prevBtn?.addEventListener('click', prevSlide);
+  nextBtn?.addEventListener('click', nextSlide);
+
+  updateSlide();
 })();
